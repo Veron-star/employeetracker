@@ -68,3 +68,112 @@ function start() {
             }
         });
 };
+
+function viewDepartments() {
+    var query = "SELECT * FROM department";
+    connection.query(query, function(err, res) {
+        console.log(`DEPARTMENTS:`)
+        res.forEach(department => {
+            console.log(`ID: ${department.id} | Name: ${department.name}`)
+        })
+        start();
+    });
+};
+
+function viewRoles() {
+    var query = "SELECT * FROM role";
+    connection.query(query, function(err, res) {
+        console.log(`ROLES:`)
+        res.forEach(role => {
+            console.log(`ID: ${role.id} | Title: ${role.title} | Department ID: ${role.department_id} | Salary: ${role.salary}`);
+        })
+        start();
+    });
+};
+
+function viewEmployees() {
+    var query = "SELECT * FROM employee";
+    connection.query(query, function(err, res) {
+        console.log(`EMPLOYEES:`)
+        res.forEach(employee => {
+            console.log(`ID: ${employee.id} | Name: ${employee.first_name} ${employee.last_name} | Role ID: ${employee.role_id} | Manager ID: ${employee.manager_id}`);
+        })
+        start();
+    });
+};
+
+function addDepartment() {
+    inquirer.prompt(
+        {
+            type: "input",
+            message: "Please enter new department.",
+            name: "newDepartment"
+        }).then(function(answer) {
+            var query = "INSERT INTO newDepartment (name) VALUES ( ? )";
+            connection.query(query, answer.newDepartment, function(err, res) {
+                console.log(`Successfully added new department: ${(answer.newDepartment).toUpperCase()}.`)
+            })
+            viewDepartments();
+        });
+};
+
+function deleteDepartment() {
+    inquirer.prompt(
+        {
+            type: "input",
+            message: "Please enter department to remove from list.",
+            name: "remove"
+        }).then(function(answer) {
+            var query = "INSERT INTO remove (name) VALUES ( ? )";
+            connection.query(query, answer.remove, function(err, res) {
+                console.log(`Successfully remove department: ${(answer.remove).toUpperCase()}.`)
+            })
+            viewDepartments();
+        });
+};
+
+function addRole() {
+    connection.query("SELECT * FROM department", function(err, res) {
+        if (err) throw err;
+        inquirer.prompt([
+            {
+                type: "input",
+                message: "Please enter title for the new role.",
+                name: "title"
+            },
+            {
+                type: "input",
+                message: "Please enter salary for the new role.",
+                name: "salary"
+            },
+            {
+                type: "list",
+                message: "Please enter the department for the new role.",
+                name: "departmentName",
+                choices: function() {
+                    var choiceArray = [];
+                    res.forEach(res => {
+                        choiceArray.push(res.name);
+                    })
+                    return choiceArray;
+                }
+            }
+        ]).then(function(answer) {
+            const department = answer.departmentName;
+            connection.query("SELECT * FROM DEPARTMENT", function(err, res) {
+                if (err) throw err;
+                let filterDept = res.filter(function(res) {
+                    return res.name == department;
+                })
+                let id = filterDept[0].id;
+                let query = "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)";
+                let values = [answer.title, parseInt(answer.salary).id]
+                console.log(values);
+                connection.query(query, values, function(err, res, fields) {
+                    console.log(`Successfully added new role: ${(values[0]).toUpperCase()}.`)
+                })
+                viewRoles();
+            })
+        })
+    })
+};
