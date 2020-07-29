@@ -1,0 +1,23 @@
+{
+  "name": "employeetracker",
+  "version": "1.0.0",
+  "description": "Employee Tracker",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Veron-star/employeetracker.git"
+  },
+  "author": "Veronica",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Veron-star/employeetracker/issues"
+  },
+  "homepage": "https://github.com/Veron-star/employeetracker#readme",
+  "dependencies": {
+    "inquirer": "^7.3.3",
+    "mysql": "^2.18.1"
+  }
+}
