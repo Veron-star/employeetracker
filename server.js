@@ -6,7 +6,7 @@ const { allowedNodeEnvironmentFlags } = require("process");
 var connection = mySql.createConnection({
     multipleStatements: true,
     host: "localhost",
-    port: 3000,
+    port: PORT.ENV || 3000,
     user: "root",
     password: "happy",
     database: "employee_db"
@@ -177,3 +177,91 @@ function addRole() {
         })
     })
 };
+
+function deleteRole() {
+    inquirer.prompt(
+        {
+            type: "input",
+            message: "Please enter role to remove from list.",
+            name: "remove"
+        }).then(function(answer) {
+            var query = "INSERT INTO remove (name) VALUES ( ? )";
+            connection.query(query, answer.remove, function(err, res) {
+                console.log(`Successfully remove role: ${(answer.remove).toUpperCase()}.`)
+            })
+            viewRoles();
+        });
+};
+
+async function addEmployee() {
+    connection.query("SELECT * FROM role", function(err, result) {
+        if (err) throw err;
+        inquirer.prompt([{
+            type: "input",
+            message: "Please enter employee's first name.",
+            name: "firstName"
+        },
+        {
+            type: "input",
+            message: "Please enter employee's last name.",
+            name: "lastName"
+        },
+        {
+            type: "list",
+            message: "Please enter employee's role.",
+            name: "roleName",
+            choices: function() {
+                roleArray = [];
+                result.forEach(result => {
+                    roleArray.push(
+                        result.title
+                    );
+                })
+                return roleArray;
+            }
+        }
+    ]).then(function(answer) {
+        console.log(answer);
+        const role = answer.roleName;
+        connection.query("SELECT * FROM role", function(err, res) {
+            let filterRole = res.filter(function(res) {
+                return res.title == role;
+            })
+            let roleId = filterRole[0].id;
+            connection.query("SELECT * FROM employee", function(err,res) {
+                inquirer.prompt ([
+                    {
+                        type: "list",
+                        message: "Please enter manager's name.",
+                        name: "manager",
+                        choices: function() {
+                            managerArray = [];
+                            res.forEach(res => {
+                                managerArray.push(res.last_name);
+                            })
+                            return managerArray;
+                        }
+                    }
+                ]).then(function(managerAnswer) {
+                    const manager = managerAnswer.manager;
+                    connection.query("SELECT * FROM employee", function(err, res) {
+                        if (err) throw err;
+                        let filterManager = res.filter(function(res) {
+                            return res.last_name == manager;
+                        })
+                        let managerId = filterManager[0].id;
+                        console.log(managerAnswer);
+                        let query = "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)";
+                        let values = [answer.firstName, answer.lastName, roleId, managerId];
+                        console.log(values);
+                        connection.query(query, values, function(err, res, fields) {
+                            console.log(`Successfully added this employee: ${(values[0]).toUpperCase()}.`)
+                        })
+                        viewEmployees();
+                    })
+                })
+            })
+        })
+    })
+    })
+}
