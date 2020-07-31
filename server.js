@@ -59,10 +59,10 @@ function start() {
                 deleteEmployee();
             } else if (answer.action === "Update employee role") {
                 updateEmployeeRole();
-            } else if (answer.action === "View employee by managers") {
-                viewEmployeeByManagers();
-            } else if (answer.action === "Update employee by managers") {
-                updateEmployeeByManagers();
+            // } else if (answer.action === "View employee by managers") {
+            //     viewEmployeeByManagers();
+            // } else if (answer.action === "Update employee by managers") {
+            //     updateEmployeeByManagers();
             } else if (answer.action === "Escape") {
                 connection.end();
             }
@@ -263,5 +263,58 @@ async function addEmployee() {
             })
         })
     })
+    })
+}
+
+function updateEmployeeRole() {
+    connection.query("SELECT * FROM employee", function(err, result) {
+        if (err) throw err;
+        inquirer.prompt ([
+            {
+                type: "list",
+                message: "Please enter employee's name for the new role.",
+                name: "employeeName",
+                choice: function() {
+                    employeeArray = [];
+                    result.forEach(result => {
+                        employeeArray.push(result.last_name);
+                    })
+                    return employeeArray;
+                }
+            }
+        ]).then(function(answer) {
+            console.log(answer);
+            const name = answer.employeeName;
+            connection.query("SELECT * FROM role", function(err, res) {
+                inquirer.prompt ([
+                    {
+                        type: "list",
+                        message: "Please enter new role.",
+                        name: "role",
+                        choice: function() {
+                            roleArray = [];
+                            res.forEach(res => {
+                                roleArray.push(res.title);
+                            })
+                            return roleArray;
+                        }
+                    }
+                ]).then(function(roleAnswer) {
+                    const role = roleAnswer.role;
+                    console.log(roleAnswer.role);
+                    connection.query("SELECT * FROM role WHERE title = ?", [role], function(err, res) {
+                        if (err) throw err;
+                        let roleId = res[0].id;
+                        let query = "UPDATE employee SET role_id ? WHERE last_name ?";
+                        let values = [roleId, name];
+                        console.log(values);
+                        connection.query(query, values, function(err, res, fields) {
+                            console.log(`Successfully updated ${name}'s role to ${role}.`);
+                        })
+                        viewEmployees();
+                    })
+                })
+            })
+        })
     })
 }
