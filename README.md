@@ -17,3 +17,5 @@ GitHub Profile: https://github.com/Veron-star/employeetracker
 
 ## Demostration:
 Link: https://drive.google.com/file/d/1rPJ_lPLh7WLJXvPiYW_EJ22Qatwgn1qz/view
+
+![](/screenshot.PNG)
