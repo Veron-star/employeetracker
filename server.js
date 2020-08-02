@@ -2,8 +2,6 @@ const mysql = require('mysql');
 const inquirer = require('inquirer');
 // require('console.table');
 
-
-
 const promptMessages = {
     viewAllEmployees: "View All Employees",
     viewByDepartment: "View All Employees By Department",
